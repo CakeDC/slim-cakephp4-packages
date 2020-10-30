@@ -24,5 +24,11 @@ return function (ContainerBuilder $containerBuilder) {
 
             return $logger;
         },
+        \Cake\ORM\Locator\TableLocator::class => function(ContainerInterface $c) {
+            $settings = $c->get('settings');
+            \Cake\Datasource\ConnectionManager::setConfig('default', $settings['database']);
+
+            return new \Cake\ORM\Locator\TableLocator();
+        }
     ]);
 };
