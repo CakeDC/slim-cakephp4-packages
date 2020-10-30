@@ -1,18 +1,29 @@
-version: '3.7'
-
-volumes:
-    logs:
-        driver: local
-
+version: "3.1"
 services:
-    slim:
-        image: php:7-alpine
-        working_dir: /var/www
-        command: php -S 0.0.0.0:8080 -t public
-        environment:
-            docker: "true"
-        ports:
-            - 8080:8080
-        volumes:
-            - .:/var/www
-            - logs:/var/www/logs
+    mysql:
+      image: mysql:5.7
+      container_name: slimcake4pack-mysql
+      working_dir: /application
+      volumes:
+        - .:/application
+        - ./tmp/data/mysql_db:/var/lib/mysql
+      environment:
+        - MYSQL_ROOT_PASSWORD=secret
+        - MYSQL_DATABASE=my_db
+        - MYSQL_USER=my_user
+        - MYSQL_PASSWORD=secret
+      command: mysqld --sql_mode="NO_ENGINE_SUBSTITUTION" --character-set-server=utf8 --collation-server=utf8_general_ci --init-connect='SET NAMES UTF8;' --innodb-flush-log-at-trx-commit=0
+      ports:
+        - "3306:3306"
+
+    php-fpm:
+      image: webdevops/php-nginx:7.4
+      container_name: slimcake4pack-php-fpm
+      working_dir: /app
+      volumes:
+        - ./:/app
+      environment:
+        - WEB_DOCUMENT_ROOT=/app/public
+      ports:
+        - "80:80"
+        - "443:443"
